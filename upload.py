@@ -1,7 +1,3 @@
-"""
-usint google api client, upload files from local windows pc.
-"""
-
 from __future__ import print_function
 import pickle
 import fnmatch
@@ -15,8 +11,10 @@ from google.auth.transport.requests import Request
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 def main():
+    """Shows basic usage of the Drive v3 API.
+    Prints the names and ids of the first 10 files the user has access to.
+    """
     creds = None
-    # this code come from google quick start
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -37,15 +35,17 @@ def main():
 
     service = build('drive', 'v3', credentials=creds)
     mydir = 'c:/orange/customers.'
-    # get the list of files with a pattern cliteria and upload each of them
     listOfFiles = os.listdir(mydir)
     pattern = "*.csv"
+    folder_ids = ['1nA51BY05rIvHwaGiTxsqUQ5BxCtxmgOY']
     for entry in listOfFiles:
         if fnmatch.fnmatch(entry, pattern):
-            file_metadata = {'name': entry}
+            date_file_name = entry[0:8] + 'customer.csv'
+            file_metadata = {
+                'name': date_file_name,
+                'mimeType': 'application/vnd.google-apps.spreadsheet',
+                'parents': folder_ids}
             path = os.path.join(mydir, entry)
-            # this is the second way to upload files less than 5G shown in the quickstart.
-            # use mintype='text/csv' for csv
             media = MediaFileUpload(path, mimetype='text/csv')
             file = service.files().create(body=file_metadata,
                                             media_body=media,
@@ -54,3 +54,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
